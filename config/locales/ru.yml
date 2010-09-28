@@ -1,3 +1,4 @@
-# Russian  strings go here for Rails i18n
+# Russian strings go here for Rails i18n
 ru:
   field_tags: "Теги"
+  tagging_inline: "Редактировать теги в тексте"
