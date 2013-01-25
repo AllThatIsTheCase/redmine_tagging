@@ -96,5 +96,11 @@ module TaggingPlugin
 
 end
 
-Query.send(:include, TaggingPlugin::QueryPatch) unless Query.included_modules.include? TaggingPlugin::QueryPatch
+klass = if require_dependency 'issue_query'
+  IssueQuery
+else
+  Query
+end
+
+klass.send(:include, TaggingPlugin::QueryPatch) unless Query.included_modules.include? TaggingPlugin::QueryPatch
 QueriesHelper.send(:include, TaggingPlugin::QueriesHelperPatch) unless QueriesHelper.included_modules.include? TaggingPlugin::QueriesHelperPatch
