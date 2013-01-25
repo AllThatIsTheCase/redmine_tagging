@@ -102,5 +102,5 @@ else
   Query
 end
 
-klass.send(:include, TaggingPlugin::QueryPatch) unless Query.included_modules.include? TaggingPlugin::QueryPatch
+klass.send(:include, TaggingPlugin::QueryPatch) unless klass.included_modules.include? TaggingPlugin::QueryPatch
 QueriesHelper.send(:include, TaggingPlugin::QueriesHelperPatch) unless QueriesHelper.included_modules.include? TaggingPlugin::QueriesHelperPatch
