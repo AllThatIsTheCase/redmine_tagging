@@ -11,7 +11,7 @@ module TaggingPlugin
         alias_method_chain :available_filters, :tags
         alias_method_chain :sql_for_field, :tags
 
-        tag_query_column = QueryColumn.new(:issue_tags, :caption => :field_tags, :groupable => false)
+        tag_query_column = QueryColumn.new(:issue_tags, :caption => :field_tags)
         add_available_column(tag_query_column)
       end
 
@@ -54,6 +54,7 @@ module TaggingPlugin
             sql = "(#{Issue.table_name}.id IN (select taggable_id from taggings where taggable_type='Issue'))"
             return sql
           else
+            #sql = selected_values.collect{|val| "'#{ActiveRecord::Base.connection.quote_string(val.downcase.gsub('\'', ''))}'"}.join(',')
             sql = selected_values.collect{|val| "'#{ActiveRecord::Base.connection.quote_string(val.gsub('\'', ''))}'"}.join(',')
             sql = "(#{Issue.table_name}.id in (select taggable_id from taggings join tags on tags.id = taggings.tag_id where taggable_type='Issue' and tags.name in (#{sql})))"
             sql = "(not #{sql})" if operator == '!'
@@ -72,7 +73,6 @@ module TaggingPlugin
       base.class_eval do
         unloadable # Send unloadable so it will not be unloaded in development
         alias_method_chain :column_content, :tags
-        base.send :alias_method_chain, :csv_value, :tags
       end
     end
 
@@ -91,13 +91,6 @@ module TaggingPlugin
         else
           column_content_without_tags(column, issue)
         end
-      end
-
-      def csv_value_with_tags(column, issue, value)
-        if value.class.name == 'IssueTag'
-          value = value.tag
-        end
-        csv_value_without_tags(column, issue, value)
       end
     end
   end
