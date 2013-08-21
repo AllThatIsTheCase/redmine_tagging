@@ -102,7 +102,52 @@ module TaggingPlugin
     end
   end
 
+
+  module PdfGenPatch
+   def self.included(base) # :nodoc:
+     base.send(:include, InstanceMethods)
+     base.class_eval do
+       unloadable # Send unloadable so it will not be unloaded in development
+       alias_method_chain :fetch_row_values, :tags
+     end
+   end
+
+   module InstanceMethods
+     def fetch_row_values_with_tags(issue, query, level)
+       query.inline_columns.collect do |column|
+         s = if column.is_a?(QueryCustomFieldColumn)
+           cv = issue.custom_field_values.detect {|v| v.custom_field_id == column.custom_field.id}
+           show_value(cv)
+         else
+           value = issue.send(column.name)
+           if column.name == :subject
+             value = "  " * level + value
+           end
+           if value.is_a?(Date)
+             format_date(value)
+           elsif value.is_a?(Time)
+             format_time(value)
+           elsif value.is_a?(Array)
+             ret = ''
+             value.each do |val|
+               if val.class.name == 'IssueTag'
+                 ret += val.tag.to_s + ' '
+               end
+             end
+             ret
+           else
+             value
+           end
+         end
+         s.to_s
+       end
+     end
+   end
+ end
+
 end
 
 IssueQuery.send(:include, TaggingPlugin::QueryPatch) unless IssueQuery.included_modules.include? TaggingPlugin::QueryPatch
 QueriesHelper.send(:include, TaggingPlugin::QueriesHelperPatch) unless QueriesHelper.included_modules.include? TaggingPlugin::QueriesHelperPatch
+Redmine::Export::PDF.send(:include, TaggingPlugin::PdfGenPatch) unless Redmine::Export::PDF.included_modules.include? TaggingPlugin::PdfGenPatch
+

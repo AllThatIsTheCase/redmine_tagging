@@ -27,6 +27,10 @@ Redmine::Plugin.register :redmine_tagging do
 
   settings :default => { :dynamic_font_size => "1", :sidebar_tagcloud => "1", :wiki_pages_inline  => "0", :issues_inline => "0" }, :partial => 'tagging/settings'
 
+  project_module :issue_tags do
+    permission :issue_tags, {:issues => :tags}, :require => :loggedin
+  end
+
   Redmine::WikiFormatting::Macros.register do
     desc "Wiki/Issues tagcloud"
     macro :tagcloud do |obj, args|
