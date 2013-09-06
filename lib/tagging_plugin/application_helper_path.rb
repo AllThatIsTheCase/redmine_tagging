@@ -30,22 +30,32 @@ module TaggingPlugin
           tag[1..-1]
         end
 
-        def tag_cloud_in_project(project, &each_tag)
-
+        def tag_cloud_in_project(project, create = false, &each_tag)
           tags = {}
           if project
             context = TaggingPlugin::ContextHelper.context_for(project)
- 
-            Issue.tag_counts_on(context).each do |tag|
-              tags[tag.name] = tag.count
+            if !create
+              Issue.tag_counts_on(context).where("last_update >= ?", 6.month.ago).each do |tag|
+                tags[tag.name] = tag.count
+              end
+            else
+              Issue.tag_counts_on(context).each do |tag|
+                tags[tag.name] = tag.count
+              end
             end
 
             WikiPage.tag_counts_on(context).each do |tag|
               tags[tag.name] = tags[tag.name].to_i + tag.count
             end
           else
-            Issue.all_tag_counts.each do |tag|
-              tags[tag.name] = tag.count
+            if !create
+              Issue.all_tag_counts.where("last_update >= ?", 6.month.ago).each do |tag|
+                tags[tag.name] = tag.count
+              end
+            else
+              Issue.all_tag_counts.each do |tag|
+                tags[tag.name] = tag.count
+              end
             end
 
             WikiPage.all_tag_counts.each do |tag|
