@@ -108,8 +108,10 @@ module TaggingPlugin
             set_tag_list_on(project_context, @tags_to_update)
             @tags_to_update.split(', ').each do |tag|
               tag_find = Tag.where(:name => tag).last
-              tag_find.last_update = Date.current
-              tag_find.save
+              if !tag_find.nil?
+                tag_find.last_update = Date.current
+                tag_find.save
+              end
             end
           end
 
