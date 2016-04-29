@@ -155,11 +155,11 @@ module TaggingPlugin
 
       def controller_issues_edit_before_save(context={})
         return if Setting.plugin_redmine_tagging[:issues_inline] == "1"
-        return unless context[:params] && context[:params]['issue']
+        #Do not update tags if its not passed in params
+        return unless context[:params] && context[:params]['issue'] && !context[:params]['issue']['tags'].nil?
 
         issue = context[:issue]
         tags = context[:params]['issue']['tags'].to_s
-
         tags = TagsHelper.from_string(tags)
         issue.tags_to_update = tags
       end
