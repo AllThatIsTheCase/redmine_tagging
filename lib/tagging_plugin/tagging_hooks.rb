@@ -216,7 +216,6 @@ module TaggingPlugin
 
           ac = ac.collect{|tag| "'#{escape_javascript(tag.gsub(/^#/, ''))}'"}.join(', ')
 
-          tags += javascript_include_tag 'jquery_loader', :plugin => 'redmine_tagging'
           tags += javascript_include_tag 'tag', :plugin => 'redmine_tagging'
 
           tags += <<-generatedscript
